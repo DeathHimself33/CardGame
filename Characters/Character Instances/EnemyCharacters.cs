@@ -1,7 +1,10 @@
+#nullable enable
+using System;
+
 namespace CardGame;
+
 public class Enemy : Character
 {
-    //Enemy-specific logic here :)
     public enum EnemyIntent
     {
         Attack,
@@ -9,37 +12,55 @@ public class Enemy : Character
         Buff,
         Debuff
     }
+
+    public sealed record PlannedAction(EnemyIntent Intent, int Amount);
+
+    public PlannedAction? plannedAction { get; private set; }
+
     public Enemy(int maxHP)
     {
         MaxHP = maxHP;
         HP = maxHP;
     }
+
     public EnemyIntent DeclareIntent()
     {
-        EnemyIntent intent;
-        if(HP <= MaxHP / 4)
-        {
-            intent = EnemyIntent.Defend;
-            return intent;
-        }
-        else
-        {
-            intent = EnemyIntent.Attack;
-            return intent;
-        }
+        // Example logic: defend when low, otherwise attack
+        if (HP <= MaxHP / 4)
+            return EnemyIntent.Defend;
+
+        return EnemyIntent.Attack;
     }
-    public void TakeTurn(CombatContext context, Player player)
+
+    // Plan at start of PLAYER turn (locked-in)
+    public void PlanNextAction()
     {
-        EnemyIntent intent = DeclareIntent();
-        if(intent == EnemyIntent.Attack)
+        var intent = DeclareIntent();
+        plannedAction = intent switch
         {
-            int damage = 5;
-            DealDamage(context, player, damage);
-        }
-        else if(intent == EnemyIntent.Defend)
+            EnemyIntent.Attack => new PlannedAction(intent, 5),
+            EnemyIntent.Defend => new PlannedAction(intent, 3),
+            _ => new PlannedAction(intent, 0)
+        };
+    }
+
+    // Execute on ENEMY turn (no replanning)
+    public void ExecutePlannedAction(CombatContext context, Player player)
+    {
+        if (plannedAction is null)
+            throw new InvalidOperationException("Enemy has no planned action.");
+
+        switch (plannedAction.Intent)
         {
-            int blockAmount = 3;
-            GainBlock(context, blockAmount);
+            case EnemyIntent.Attack:
+                DealDamage(context, player, plannedAction.Amount);
+                break;
+
+            case EnemyIntent.Defend:
+                GainBlock(context, plannedAction.Amount);
+                break;
         }
+
+        plannedAction = null;
     }
 }

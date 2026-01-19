@@ -1,96 +1,124 @@
 ﻿#nullable enable
-namespace CardGame
+using System;
+using System.Collections.Generic;
+
+namespace CardGame;
+
+class Program
 {
-    class Program
+    public static void Main(string[] args) => SimpleCombatTest();
+
+    public static void SimpleCombatTest()
     {
-        public static void Main(string[] args)
+        List<Card> playerDeck = new();
+        for (int i = 0; i < 3; i++)
         {
-            SimpleCombatTest();
+            playerDeck.Add(new Strike());
+            playerDeck.Add(new Block());
+            playerDeck.Add(new Heal());
+            playerDeck.Add(new Cleave());
         }
-        public static void SimpleCombatTest()
+
+        var player = new Player(30);
+        player.Deck.AddRange(playerDeck);
+        player.ShuffleDeck();
+
+        // single combat run (easier to reason about during dev)
+        List<Enemy> enemies = new();
+        for (int i = 0; i < 2; i++)
         {
-            List<Card> PlayerDeck = new List<Card>();
-            for(int i = 0;i < 3; i++)
-            {
-                PlayerDeck.Add(new Strike{});
-                PlayerDeck.Add(new Block{});
-                PlayerDeck.Add(new Heal{});
-                PlayerDeck.Add(new Cleave{});
-            }
-            Player Player = new Player(30);
-            Player.Deck.AddRange(PlayerDeck);
-            Player.ShuffleDeck();
+            var enemy = new Enemy(10);
+            enemy.Deck.AddRange(playerDeck);
+            enemy.ShuffleDeck();
+            enemies.Add(enemy);
+        }
 
-            Enemy Enemy = new Enemy(10);
-            Enemy.Deck.AddRange(PlayerDeck);
-            Enemy.ShuffleDeck();
+        var combatController = new CombatController(player, enemies);
+        combatController.TransitionToState(CombatController.State.CombatStart);
 
-            CombatController combatController = new CombatController(Player, Enemy);
-            for(int y = 0;y < 3; y++)
+        while (combatController.CurrentState != CombatController.State.CombatEnd)
+        {
+            combatController.AdvanceState();
+
+            if (combatController.CurrentState != CombatController.State.PlayerWaitingAction)
+                continue;
+
+            // multiple actions per turn: keep prompting until "end" or CombatEnd
+            while (combatController.CurrentState == CombatController.State.PlayerWaitingAction &&
+                   combatController.CurrentState != CombatController.State.CombatEnd)
             {
-                combatController.TransitionToState(CombatController.State.CombatStart);
-                while(combatController.CurrentState != CombatController.State.CombatEnd)
+                Console.WriteLine();
+                Console.WriteLine($"Your HP: {player.HP} | Block: {player.Block} | Energy: {player.Energy}");
+
+                Console.WriteLine("Enemies:");
+                for (int i = 0; i < enemies.Count; i++)
                 {
-                    combatController.AdvanceState();
-                    if(combatController.CurrentState == CombatController.State.PlayerWaitingAction)
+                    var e = enemies[i];
+                    if (e.HP <= 0) continue;
+
+                    string intentText = e.plannedAction is null
+                        ? ""
+                        : $" | Intent: {e.plannedAction.Intent} {e.plannedAction.Amount}";
+
+                    Console.WriteLine($"{i}: Enemy | HP: {e.HP} | Block: {e.Block}{intentText}");
+                }
+
+                Console.WriteLine("Hand:");
+                for (int i = 0; i < player.Hand.Count; i++)
+                    Console.WriteLine($"{i}: {player.Hand[i].Name} (Cost: {player.Hand[i].Cost})");
+
+                Console.WriteLine("Enter card index to play or 'end':");
+                string? input = Console.ReadLine();
+
+                if (input?.ToLower() == "end")
+                {
+                    combatController.SubmitPlayerAction(new CombatController.EndTurnAction());
+
+                    // advance until it's player waiting again or combat ends
+                    while (combatController.CurrentState != CombatController.State.PlayerWaitingAction &&
+                           combatController.CurrentState != CombatController.State.CombatEnd)
                     {
-                        for (int i = 0; i < Player.Hand.Count; i++)
-                        {
-                            Console.WriteLine($"{i}: {Player.Hand[i].Name} (Cost: {Player.Hand[i].Cost})");
-                        }
-                        
-                        Console.WriteLine("Enter the index of the card to play or 'end' to end your turn:");
-                        string? input = Console.ReadLine();
-                        
-                        if (input?.ToLower() == "end")
-                        {
-                            Player.EndTurn(combatController.Context);
-                            break;
-                        }
-
-                        if (int.TryParse(input, out int cardIndex) && cardIndex >= 0 && cardIndex < Player.Hand.Count)
-                        {
-                            Card selectedCard = Player.Hand[cardIndex];
-                            Character? target;
-                            if(selectedCard.TargetType == TargetType.SingleEnemy)
-                            {
-                                target = Enemy;
-                            }
-                            else
-                            {
-                                target = null;
-                            }
-                            bool success = Player.TryPlayCard(combatController.Context, selectedCard, target);
-                            if (!success)
-                            {
-                                Console.WriteLine("Cannot play that card.");
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Played {selectedCard.Name}.");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid input.");
-                        }
+                        combatController.AdvanceState();
                     }
+                    break;
                 }
-                Player.EndTurn(combatController.Context);
-                if (combatController.PlayerWon)
+
+                if (!int.TryParse(input, out int cardIndex) || cardIndex < 0 || cardIndex >= player.Hand.Count)
                 {
-                    Random rng = new Random();
-                    CardLibrary library = new CardLibrary();
-
-                    List<Card> rewards = library.CreateRewardOptions(3, rng);
-
-                    Card reward = rewards[0];
-
-                    Player.Deck.Add(reward);
-                    Console.WriteLine($"You won! You received a {reward.Name} card as a reward.");
-                    Console.WriteLine("Deck size is now: " + Player.Deck.Count);
+                    Console.WriteLine("Invalid input.");
+                    continue;
                 }
-            }        
+
+                Card selectedCard = player.Hand[cardIndex];
+                Character? target = null;
+
+                if (selectedCard.TargetType == TargetType.SingleEnemy)
+                {
+                    Console.WriteLine("Select target enemy index:");
+                    string? targetInput = Console.ReadLine();
+
+                    if (!int.TryParse(targetInput, out int targetIndex) || targetIndex < 0 || targetIndex >= enemies.Count)
+                    {
+                        Console.WriteLine("Invalid target index.");
+                        continue;
+                    }
+                    if (enemies[targetIndex].HP <= 0)
+                    {
+                        Console.WriteLine("Target is dead.");
+                        continue;
+                    }
+
+                    target = enemies[targetIndex];
+                }
+
+                combatController.SubmitPlayerAction(new CombatController.PlayCardAction(cardIndex, target));
+
+                if (combatController.CurrentState == CombatController.State.CombatEnd)
+                    break;
+            }
         }
+
+        Console.WriteLine();
+        Console.WriteLine(combatController.PlayerWon ? "Victory!" : "Defeat!");
     }
 }

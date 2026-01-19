@@ -1,3 +1,8 @@
+#nullable enable
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace CardGame;
 
 public sealed class CombatContext
@@ -5,19 +10,13 @@ public sealed class CombatContext
     private readonly Action<Character>? _onCharacterDamaged;
 
     private readonly Character _playerCharacter;
-    private readonly Character _enemyCharacter;
+    private readonly IReadOnlyList<Character> _enemyCharacters;
 
-    //Cached Lists so GetEnemiesOf doesn't create new lists each call
-    private readonly IReadOnlyList<Character> _playerEnemies;
-    private readonly IReadOnlyList<Character> _enemyEnemies;   
-    public CombatContext(Character player, Character enemy, Action<Character>? onCharacterDamaged = null)
+    public CombatContext(Character player, IReadOnlyList<Character> enemies, Action<Character>? onCharacterDamaged = null)
     {
         _playerCharacter = player;
-        _enemyCharacter = enemy;
+        _enemyCharacters = enemies;
         _onCharacterDamaged = onCharacterDamaged;
-
-        _playerEnemies = new[] { _enemyCharacter };
-        _enemyEnemies = new[] { _playerCharacter };
     }
 
     public void TriggerRelics(Character owner, TriggerEvent trigger, CombatContext context, object? eventData = null)
@@ -31,17 +30,22 @@ public sealed class CombatContext
 
     public IReadOnlyList<Character> GetEnemiesOf(Character character)
     {
-        if(ReferenceEquals(character, _playerCharacter))
-        {
-            return _playerEnemies;
-        }
-        else if(ReferenceEquals(character, _enemyCharacter))
-        {
-            return _enemyEnemies;
-        }
-        else
-        {
-            throw new ArgumentException("Character not part of this combat context.", nameof(character));
-        }
+        if (ReferenceEquals(character, _playerCharacter))
+            return _enemyCharacters;
+
+        if (_enemyCharacters.Contains(character))
+            return new[] { _playerCharacter };
+
+        throw new ArgumentException("Character not part of this combat context.", nameof(character));
     }
+    
+    //                  LOGS
+
+    public sealed record LogEntry(DateTime Time, string Message);
+
+    private readonly List<LogEntry> _log = new();
+    public IReadOnlyList<LogEntry> Log => _log;
+
+    public void AddLog(string message) => _log.Add(new LogEntry(DateTime.UtcNow, message));
+    public void ClearLog() => _log.Clear();
 }

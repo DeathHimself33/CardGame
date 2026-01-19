@@ -47,7 +47,7 @@ public abstract partial class Character
                 {
                     throw new ArgumentNullException(nameof(target), "AllEnemies cards do not take a target");
                 }
-                targets = context.GetEnemiesOf(this);
+                targets = context.GetEnemiesOf(this).Where(e => e.HP > 0).ToList();
                 if(targets.Count == 0)
                 {
                     throw new ArgumentException("No valid targets available for this card.");
