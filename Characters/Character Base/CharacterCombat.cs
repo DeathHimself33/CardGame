@@ -21,7 +21,7 @@ public abstract partial class Character
         target.Block = Math.Max(0, target.Block - finalDamage);
         target.TakeDamageDirect(context,damageAfterBlock); 
     }
-    public void TakeDamageDirect(CombatContext context, int amount)
+    public void TakeDamageDirect(CombatContext context,int amount)
     {
         if(amount <= 0)
         {

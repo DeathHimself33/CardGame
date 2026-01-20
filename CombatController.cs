@@ -18,7 +18,7 @@ public class CombatController
     {
         Player = player;
         Enemies = enemies;
-        Context = new CombatContext(player, enemies, onCharacterDamaged: OnCharacterDamaged);
+        Context = new CombatContext(player, enemies, OnCharacterDamaged);
     }
 
     public enum State
