@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Runtime;
 
 namespace CardGame;
 
@@ -25,10 +26,14 @@ public class Enemy : Character
 
     public EnemyIntent DeclareIntent()
     {
-        // Example logic: defend when low, otherwise attack
+        //Basic enemy AI, replace later
         if (HP <= MaxHP / 4)
             return EnemyIntent.Defend;
 
+        if(!this.StatusEffects.Any(s => s.Type == StatusEffectType.Strength))
+        {
+            return EnemyIntent.Buff;
+        }
         return EnemyIntent.Attack;
     }
 
@@ -40,6 +45,8 @@ public class Enemy : Character
         {
             EnemyIntent.Attack => new PlannedAction(intent, 5),
             EnemyIntent.Defend => new PlannedAction(intent, 3),
+            EnemyIntent.Buff => new PlannedAction(intent, 3), // Integer is amount
+            EnemyIntent.Debuff => new PlannedAction(intent, 2), // Integer is duration
             _ => new PlannedAction(intent, 0)
         };
     }
@@ -58,6 +65,12 @@ public class Enemy : Character
 
             case EnemyIntent.Defend:
                 GainBlock(context, plannedAction.Amount);
+                break;
+            case EnemyIntent.Buff:
+                AddStatusEffect(new Strength(plannedAction.Amount, 3));
+                break;
+            case EnemyIntent.Debuff:
+                player.AddStatusEffect(new Weak(plannedAction.Amount));
                 break;
         }
 
