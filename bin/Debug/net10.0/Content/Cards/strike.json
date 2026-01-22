@@ -1,0 +1,11 @@
+{
+    "id": "strike",
+    "name": "Strike",
+    "cost": 1,
+    "rarity": "Common",
+    "type": "Attack",
+    "targetType": "SingleEnemy",
+    "ops": [
+      { "op": "Damage", "amount": 6 }
+    ]
+}

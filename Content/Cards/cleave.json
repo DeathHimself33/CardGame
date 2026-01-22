@@ -1,0 +1,11 @@
+{
+    "id": "cleave",
+    "name": "Cleave",
+    "cost": 1,
+    "rarity": "Common",
+    "type": "Attack",
+    "targetType": "AllEnemies",
+    "ops": [
+      { "op": "Damage", "amount": 3 }
+    ]
+  }

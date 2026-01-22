@@ -6,19 +6,23 @@ namespace CardGame;
 
 class Program
 {
-    private static readonly CardLibrary CardLibrary = new CardLibrary();
     public static void Main(string[] args) => SimpleCombatTest();
 
     public static void SimpleCombatTest()
     {
+        var cardsFolder = Path.Combine(AppContext.BaseDirectory, "Content", "Cards");
+
+        var cardDefs = GameDataLoader.LoadCards(cardsFolder);
+
+        CardLibrary cardLibrary = new CardLibrary(cardDefs);
         Random random = new Random();
         List<Card> playerDeck = new();
         for (int i = 0; i < 3; i++)
         {
-            playerDeck.Add(new Strike());
-            playerDeck.Add(new Block());
-            playerDeck.Add(new Heal());
-            playerDeck.Add(new Cleave());
+            playerDeck.Add(cardLibrary.Create("strike"));
+            playerDeck.Add(cardLibrary.Create("block"));
+            playerDeck.Add(cardLibrary.Create("cleave"));
+            playerDeck.Add(cardLibrary.Create("heal"));
         }
 
         var player = new Player(30);
@@ -38,7 +42,7 @@ class Program
                 enemies.Add(enemy);
             }
 
-            var combatController = new CombatController(player, enemies);
+            var combatController = new CombatController(player, enemies,cardLibrary);
             combatController.TransitionToState(CombatController.State.CombatStart);
 
             while (combatController.CurrentState != CombatController.State.CombatEnd)
@@ -131,7 +135,7 @@ class Program
             Console.WriteLine();
             if (combatController.PlayerWon)
             {
-                List<Card> rewards = CardLibrary.CreateRewardOptions(3,random);
+                List<Card> rewards = cardLibrary.CreateRewardOptions(3,random);
 
                 Console.WriteLine("Choose a reward (0-2) or type 'skip': ");
                 for(int i = 0;i < rewards.Count; i++)

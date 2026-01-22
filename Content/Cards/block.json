@@ -1,0 +1,11 @@
+{
+    "id": "block",
+    "name": "Block",
+    "cost": 1,
+    "rarity": "Common",
+    "type": "Skill",
+    "targetType": "Self",
+    "ops": [
+      { "op": "Block", "amount": 3 }
+    ]
+}

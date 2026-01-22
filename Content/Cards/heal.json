@@ -1,0 +1,11 @@
+{
+    "id": "heal",
+    "name": "Heal",
+    "cost": 1,
+    "rarity": "Common",
+    "type": "Skill",
+    "targetType": "Self",
+    "ops": [
+      { "op": "Heal", "amount": 3 }
+    ]
+  }

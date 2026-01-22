@@ -6,7 +6,7 @@ namespace CardGame;
 
 public class CombatController
 {
-    private static readonly CardLibrary CardLibrary = new CardLibrary();
+    private readonly CardLibrary _cardLibrary;
     public Random seed = new Random();
 
     public Character Player { get; set; }
@@ -14,11 +14,12 @@ public class CombatController
 
     public CombatContext Context { get; private set; }
 
-    public CombatController(Character player, List<Enemy> enemies)
+    public CombatController(Character player, List<Enemy> enemies, CardLibrary cardLibrary)
     {
         Player = player;
         Enemies = enemies;
         Context = new CombatContext(player, enemies, OnCharacterDamaged);
+        _cardLibrary = cardLibrary;
     }
 
     public enum State
@@ -149,12 +150,6 @@ public class CombatController
 
             case State.CombatEnd:
                 Context.TriggerRelics(Player, TriggerEvent.CombatEnd, Context, Context);
-
-                if (combatResult == CombatResult.Victory)
-                {
-                    // reward generation placeholder
-                    _ = CardLibrary.CreateRewardOptions(3, seed);
-                }
                 break;
         }
     }
