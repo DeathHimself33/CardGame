@@ -2,10 +2,12 @@ using CardGame;
 
 public enum EffectOpKind{
     Damage, 
-    Block, 
+    Block,
+    GainBlockRaw, 
     Heal,
     Poison, 
-    GainEnergy}
+    GainEnergy,
+    Draw}
 public sealed class EffectOpDef
 {
     public EffectOpKind Op{get;set;}
@@ -31,6 +33,9 @@ public static class EffectExecutor
                 case EffectOpKind.Block:
                     user.GainBlock(context, op.Amount);
                     break;
+                case EffectOpKind.GainBlockRaw:
+                    user.GainBlockRaw(op.Amount);
+                    break;
                 case EffectOpKind.Heal:
                     user.Heal(context, op.Amount);
                     break;
@@ -40,6 +45,9 @@ public static class EffectExecutor
                     break;
                 case EffectOpKind.GainEnergy:
                     user.GainEnergy(op.Amount);
+                    break;
+                case EffectOpKind.Draw:
+                    user.DrawCards(op.Amount);
                     break;
             }
         }

@@ -141,7 +141,7 @@ class Program
             Console.WriteLine();
             if (combatController.PlayerWon)
             {
-                List<Relic> rewards = relicLibrary.CreateRewardOptions(1,random);
+                List<Relic> rewards = relicLibrary.CreateRewardOptions(3,random,player);
                 Console.WriteLine("Choose a relic reward (0-2) or type 'skip': ");
                 for(int i = 0;i < rewards.Count; i++)
                 {

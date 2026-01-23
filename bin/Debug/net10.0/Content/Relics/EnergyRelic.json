@@ -1,7 +1,7 @@
 {
     "id": "battery",
     "name": "Battery",
-    "rarity": "Common",
+    "rarity": "Rare",
     "immunities": [],
     "triggers": {
       "TurnStart": [ { "op": "GainEnergy", "amount": 1 } ]
