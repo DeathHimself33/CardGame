@@ -6,10 +6,11 @@ public sealed class DataCard : Card
     public DataCard(CardDef def)
     {
         _def = def;
+        ID = def.ID;
         Name = def.Name;
         Cost = def.Cost;
         TargetType = def.TargetType;
-        Rarity = def.CardRarity;
+        Rarity = def.Rarity;
         Type = def.Type;
     }
 

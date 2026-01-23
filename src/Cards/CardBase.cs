@@ -23,6 +23,7 @@ public enum TargetType
 }
 public abstract class Card
 {
+    public string ID {get; set;} = "";
     public string Name { get; set; } = "";
     public int Cost { get; set; }
     public TargetType TargetType { get; set; }

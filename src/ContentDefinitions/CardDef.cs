@@ -6,7 +6,7 @@ public sealed class CardDef
     public string Name { get; set; } = "";
     public int Cost { get; set; }
     public TargetType TargetType { get; set; }
-    public CardRarity CardRarity { get; set; }
+    public CardRarity Rarity { get; set; }
     public CardType Type { get; set; }
     public List<EffectOpDef> Ops { get; set; } = new();
 }

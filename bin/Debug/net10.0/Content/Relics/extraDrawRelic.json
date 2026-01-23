@@ -1,9 +1,9 @@
 {
-    "id": "amulet_of_fortitude",
-    "name": "Amulet Of Fortitude",
-    "rarity": "Rare",
-    "immunities": [
-        "Weak"
-    ],
-    "triggers": { }
+    "id": "scroll_of_wisdom",
+    "name": "Scroll Of Wisdom",
+    "rarity": "Uncommon",
+    "immunities": [],
+    "triggers": {
+      "TurnStart": [ { "op": "Draw", "amount": 1 } ]
+    }
 }
