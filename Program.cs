@@ -11,10 +11,16 @@ class Program
     public static void SimpleCombatTest()
     {
         var cardsFolder = Path.Combine(AppContext.BaseDirectory, "Content", "Cards");
-
         var cardDefs = GameDataLoader.LoadCards(cardsFolder);
-
         CardLibrary cardLibrary = new CardLibrary(cardDefs);
+
+        var relicsFolder = Path.Combine(AppContext.BaseDirectory, "Content", "Relics");
+        Console.WriteLine($"Relics folder: {relicsFolder}");
+        Console.WriteLine($"Exists: {Directory.Exists(relicsFolder)}");
+
+        var relicDefs = GameDataLoader.LoadRelics(relicsFolder);
+        RelicLibrary relicLibrary = new RelicLibrary(relicDefs);
+
         Random random = new Random();
         List<Card> playerDeck = new();
         for (int i = 0; i < 3; i++)
@@ -135,9 +141,32 @@ class Program
             Console.WriteLine();
             if (combatController.PlayerWon)
             {
+                List<Relic> rewards = relicLibrary.CreateRewardOptions(1,random);
+                Console.WriteLine("Choose a relic reward (0-2) or type 'skip': ");
+                for(int i = 0;i < rewards.Count; i++)
+                {
+                    Console.WriteLine($"{i}: {rewards[i].Name}");
+                }
+                while (true)
+                {
+                    string? choice = Console.ReadLine();
+                    if(choice?.ToLower() == "skip")
+                        break;
+                    if(int.TryParse(choice, out int _choice) && _choice >= 0 && _choice < rewards.Count)
+                    {
+                        rewards[_choice].Pickup(player, combatController.Context);
+                        Console.WriteLine($"Added {rewards[_choice].Name} to your inventory.");
+                        break;
+                    }
+                    Console.WriteLine("Invalid choice. Enter 0-2 or 'skip'.");
+                }
+            }
+            Console.WriteLine();
+            if (combatController.PlayerWon)
+            {
                 List<Card> rewards = cardLibrary.CreateRewardOptions(3,random);
 
-                Console.WriteLine("Choose a reward (0-2) or type 'skip': ");
+                Console.WriteLine("Choose a card reward (0-2) or type 'skip': ");
                 for(int i = 0;i < rewards.Count; i++)
                 {
                     Console.WriteLine($"{i}: {rewards[i].Name} (Cost: {rewards[i].Cost})");

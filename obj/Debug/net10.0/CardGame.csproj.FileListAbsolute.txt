@@ -17,3 +17,4 @@ D:\Main Folder\IT\Samostalno\CardGame\obj\Debug\net10.0\refint\CardGame.dll
 D:\Main Folder\IT\Samostalno\CardGame\obj\Debug\net10.0\CardGame.pdb
 D:\Main Folder\IT\Samostalno\CardGame\obj\Debug\net10.0\CardGame.genruntimeconfig.cache
 D:\Main Folder\IT\Samostalno\CardGame\obj\Debug\net10.0\ref\CardGame.dll
+D:\Main Folder\IT\Samostalno\CardGame\bin\Debug\net10.0\Content\Relics\EnergyRelic.json
