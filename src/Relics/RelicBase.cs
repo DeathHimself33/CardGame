@@ -20,4 +20,8 @@ public abstract class Relic
         owner.Relics.Add(this);
         OnEvent(TriggerEvent.RelicPickup, owner, context);  
     }
+    public void PickupOutOfCombat(Character owner)
+    {
+        owner.Relics.Add(this);
+    }
 }

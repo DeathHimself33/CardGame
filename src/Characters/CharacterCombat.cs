@@ -1,7 +1,6 @@
 namespace CardGame;
 public abstract partial class Character
 {
-    public int StrikeCount { get; set; }
     public void DealDamage(CombatContext context, Character target, int amount)
     {
         if(amount <= 0)

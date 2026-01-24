@@ -67,7 +67,6 @@ public abstract partial class Character
     {
         Energy = EnergyForTurn;
         Block = 0;
-        StrikeCount = 0;
         ShuffleDeck();
         DrawCards(5);
         TriggerStatusEffects(context, StatusEffectTrigger.TurnStart);
@@ -115,4 +114,21 @@ public abstract partial class Character
         TriggerStatusEffects(context, StatusEffectTrigger.TurnEnd);
         context.TriggerRelics(this, TriggerEvent.TurnEnd, context);
     }
+
+    public void BetweenFloorsReset()
+    {
+        DiscardPile.AddRange(Hand);
+        Hand.Clear();
+        
+        Hand.AddRange(DiscardPile);
+        DiscardPile.Clear();
+
+        ShuffleDeck();
+
+        StatusEffects.Clear();
+
+        Block = 0;
+        Energy = 0;
+    }
+
 }

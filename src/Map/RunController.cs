@@ -1,3 +1,4 @@
+
 namespace CardGame;
 public sealed class RunController
 {
@@ -7,6 +8,14 @@ public sealed class RunController
 
     public Player Player {get;}
 
+    enum RoomType
+    {
+        Combat,
+        Elite,
+        Rest,
+        Shop,
+        Boss
+    }
     public int Floor {get; private set;} = 1;
     public int MaxFloors {get;}
 
@@ -23,28 +32,250 @@ public sealed class RunController
     {
         for(Floor = 1; Floor <= MaxFloors; Floor++)
         {
-            var enemies = CreateEncounter(Floor);
-            var combat = new CombatController(Player, enemies, _cardLibrary);
-            combat.TransitionToState(CombatController.State.CombatStart);
-
-            RunCombatLoop(combat,enemies);
-
-            if(!combat.PlayerWon || Player.HP <= 0)
+            var room = CreateRoom(Floor);
+            switch (room)
             {
-                Console.WriteLine("You Lost!");
-                return;
+                case RoomType.Boss:
+                    var boss = CreateBoss(Floor);
+                    CombatController combat = new CombatController(Player, boss, _cardLibrary);
+                    RunCombatLoop(combat, boss);
+                    if (combat.PlayerWon)
+                    {
+                        DoCardReward();
+                        DoGoldReward(1.5);
+                        DoRelicReward(combat);
+                        Player.BetweenFloorsReset();
+                    }
+                    else
+                    {
+                        Console.WriteLine("You Lost!");
+                        return;
+                    }
+                    break;
+                case RoomType.Combat:
+                    var enemies = CreateCombat(Floor);
+                    combat = new CombatController(Player, enemies, _cardLibrary);
+                    RunCombatLoop(combat,enemies);
+                    if (combat.PlayerWon)
+                    {
+                        DoCardReward();
+                        DoGoldReward(1);
+                        Player.BetweenFloorsReset();
+                    }
+                    else
+                    {
+                        Console.WriteLine("You Lost!");
+                        return;
+                    }
+                    break;
+                case RoomType.Rest:
+                    CreateRest();
+                    break;
+                case RoomType.Shop:
+                    CreateShop();
+                    break;
+                case RoomType.Elite:
+                    enemies = CreateElite(Floor);
+                    combat = new CombatController(Player, enemies, _cardLibrary);
+                    RunCombatLoop(combat,enemies);
+                    if (combat.PlayerWon)
+                    {
+                        DoCardReward();
+                        DoRelicReward(combat);
+                        DoGoldReward(1.3);
+                        Player.BetweenFloorsReset();
+                    }
+                    else
+                    {
+                        Console.WriteLine("You Lost!");
+                        return;
+                    }
+                    break;
             }
-
-            DoRelicReward(combat);
-            DoCardReward();
-
-            BetweenFloors(combat);
         }
 
         Console.WriteLine("Run Complete!");
     }
 
-    private List<Enemy> CreateEncounter(int floor)
+    private RoomType CreateRoom(int floor)
+    {
+        if(floor == MaxFloors)
+        {
+            return RoomType.Boss;
+        }
+        var r = _seed.NextDouble();
+        if(r < 0.65)
+            return RoomType.Combat;
+        else if(r < 0.80)
+            return RoomType.Rest;
+        else if(r < 0.93)
+            return RoomType.Shop;
+        else
+            return RoomType.Elite;
+    }
+
+    private void CreateShop()
+    {
+        var cardOffers = _cardLibrary.CreateRewardOptions(3, _seed);
+        var relicOffers = _relicLibrary.CreateRewardOptions(3, _seed, Player);
+        while (true)
+        {
+            Console.WriteLine("Welcome to the shop! ");
+            Console.WriteLine($"Player gold: {Player.Gold}");
+            Console.WriteLine("Would you like to buy a card (30 gold, 'card'), buy a relic (120 gold, 'relic') or remove a card (75 gold, 'remove') or leave ('leave')");
+            string? choice = Console.ReadLine();
+            if(choice?.ToLower() == "card")
+            {
+                while (true)
+                {
+                    Console.WriteLine("Choose a card to buy (index) or type 'back' to go back:");
+                    for(int i = 0;i < cardOffers.Count;i++)
+                    {
+                        Console.WriteLine($"{i}: {cardOffers[i].Name}");
+                    }
+                    string? input = Console.ReadLine().ToLower();
+                    if(input == "back")
+                    {
+                        break;
+                    }
+                    if(int.TryParse(input, out int cardChoice) && cardChoice >= 0 && cardChoice < cardOffers.Count && Player.Gold >= 30)
+                    {
+                        var bought = cardOffers[cardChoice];
+                        Player.Deck.Add(bought);
+                        Player.Gold -= 30;
+                        cardOffers.Remove(bought);
+                        Console.WriteLine($"Bought: {bought}");
+                    }
+                    else if (Player.Gold < 30)
+                    {
+                        Console.WriteLine("Not Enough gold!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid input");
+                    }
+                }
+            }
+            else if(choice?.ToLower() == "relic")
+            {
+                while (true)
+                {
+                    Console.WriteLine("Choose a relic to buy (index) or type 'back' to go back:");
+                    for(int i = 0;i < relicOffers.Count;i++)
+                    {
+                        Console.WriteLine($"{i}: {relicOffers[i].Name}");
+                    }
+                    string? input = Console.ReadLine().ToLower();
+                    if(input == "back")
+                    {
+                        break;
+                    }
+                    if(int.TryParse(input, out int relicChoice) && relicChoice >= 0 && relicChoice < relicOffers.Count && Player.Gold >= 120)
+                    {
+                        var bought = relicOffers[relicChoice];
+                        bought.PickupOutOfCombat(Player);
+                        Player.Gold -= 120;
+                        relicOffers.Remove(bought);
+                        Console.WriteLine($"Bought: {bought}");
+                    }
+                    else if (Player.Gold < 120)
+                    {
+                        Console.WriteLine("Not Enough gold!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid input");
+                    }
+                }
+            }
+            else if(choice?.ToLower() == "remove")
+            {
+                while (true)
+                {
+                    Console.WriteLine("Choose a card to remove (index) or type 'back' to go back:");
+                    for(int i = 0;i < Player.Deck.Count;i++)
+                    {
+                        Console.WriteLine($"{i}: {Player.Deck[i].Name}");
+                    }
+                    string? input = Console.ReadLine().ToLower();
+                    if(input == "back")
+                    {
+                        break;
+                    }
+                    if(int.TryParse(input, out int cardChoice) && cardChoice >= 0 && cardChoice < Player.Deck.Count && Player.Gold >= 75)
+                    {
+                        Player.Deck.RemoveAt(cardChoice);
+                        Player.Gold -= 75;
+                        Console.WriteLine($"Removed: {Player.Deck[cardChoice]}");
+                    }
+                    else if(Player.Gold < 75)
+                    {
+                        Console.WriteLine("Not enough gold!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid input.");
+                    }
+                }
+            }
+            else if(choice?.ToLower() == "leave")
+            {
+                return;
+            }
+            else
+            {
+                Console.WriteLine("Invalid input.");
+            }
+        }
+    }
+    private void CreateRest()
+    {
+
+        int healAmount = (int)Math.Ceiling(Player.MaxHP * 0.3);
+        Console.Clear();
+
+        while (true)
+        {
+            Console.WriteLine($"Would you like to heal 30% ({healAmount}) of your hp ({Player.HP}/{Player.MaxHP}) or remove a card");
+            Console.WriteLine("Write 'heal' for healing or 'remove' for removing a card");
+            string? choice = Console.ReadLine();
+            if(choice?.ToLower() == "heal")
+            {
+                Player.HealRaw(healAmount);
+            }
+            if(choice?.ToLower() == "remove")
+            {
+                while (true)
+                {
+                    Console.WriteLine("Choose a card to remove (index) or type 'back' to go back:");
+                    for(int i = 0;i < Player.Deck.Count;i++)
+                    {
+                        Console.WriteLine($"{i}: {Player.Deck[i].Name}");
+                    }
+                    string? input = Console.ReadLine().ToLower();
+                    if(input == "back")
+                    {
+                        break;
+                    }
+                    if(int.TryParse(input, out int cardChoice) && cardChoice >= 0 && cardChoice < Player.Deck.Count)
+                    {
+                        Card removedCard = Player.Deck[cardChoice];
+                        Player.Deck.Remove(removedCard);
+                        Console.WriteLine($"Removed: {removedCard}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid input.");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid input.");
+            }
+        }
+    }
+    private List<Enemy> CreateCombat(int floor)
     {
         var enemies = new List<Enemy>();
 
@@ -55,7 +286,23 @@ public sealed class RunController
 
         return enemies;
     }
+    private List<Enemy> CreateElite(int floor)
+    {
+        var enemies = new List<Enemy>();
+        for(int i = 0;i < 2; i++)
+        {
+            enemies.Add(new Enemy(30 + (floor - 1) * 4));
+        }
+        return enemies;
+    }
 
+    private List<Enemy> CreateBoss(int floor)
+    {
+        //Later actually make this a boss!
+        var boss = new List<Enemy>();
+        boss.Add(new Enemy(50 + (floor - 1) * 5));
+        return boss;
+    }
     private void RunCombatLoop(CombatController combat, List<Enemy> enemies)
     {
         while(combat.CurrentState != CombatController.State.CombatEnd)
@@ -191,11 +438,9 @@ public sealed class RunController
         }
     }
 
-    private void BetweenFloors(CombatController combat)
+    private void DoGoldReward(double multiplier)
     {
-        //Later make this campfire/shop/encounter or whatever
-        Player.EndTurn(combat.Context);
-        Player.ShuffleDeck();
-        Player.Heal(combat.Context, Player.MaxHP);
+        int gold = (int)Math.Ceiling(_seed.Next(10,21) * multiplier);
+        Player.Gold += gold;
     }
 }
