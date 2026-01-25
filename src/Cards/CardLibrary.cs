@@ -16,22 +16,26 @@ public class CardLibrary
     public Card Create(string id) => new DataCard(_defsById[id]);
 
     //Later add rarities and weights and such
-    public List<Card> CreateRewardOptions(int count, Random rng)
+    public List<Card> CreateRewardOptions(int count, Random rng, RewardProfile rewardProfile)
     {
-        if(count > _defs.Count)
-        {
-            throw new ArgumentOutOfRangeException(nameof(count), "Count exceeds available unique cards.");
-        }
-        HashSet<int> chosenIndices = new HashSet<int>();
-        List<Card> rewardOptions = new List<Card>();
+        List<Card> rewardOptions = new();
+        HashSet<string> chosenIds = new(StringComparer.OrdinalIgnoreCase);
+
         while(rewardOptions.Count < count)
         {
-            int index = rng.Next(_defs.Count);
-            if(!chosenIndices.Contains(index))
+            CardRarity rarity = RewardProfiles.RollCard(rewardProfile, rng);
+            var pool = _defs.Where(d => d.Rarity == rarity && !chosenIds.Contains(d.ID)).ToList();
+            if(pool.Count == 0)
             {
-                chosenIndices.Add(index);
-                rewardOptions.Add(new DataCard(_defs[index]));
+                pool = _defs.Where(d => !chosenIds.Contains(d.ID)).ToList();
             }
+            if(pool.Count ==- 0)
+                break;
+            
+            var chosenDef = pool[rng.Next(pool.Count)];
+
+            rewardOptions.Add(new DataCard(chosenDef));
+            chosenIds.Add(chosenDef.ID);
         }
         return rewardOptions;
     }

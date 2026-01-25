@@ -7,7 +7,6 @@ public sealed class RunController
     private readonly Random _seed;
 
     public Player Player {get;}
-
     enum RoomType
     {
         Combat,
@@ -41,12 +40,12 @@ public sealed class RunController
                     RunCombatLoop(combat, boss);
                     if (combat.PlayerWon)
                     {
-                        DoCardReward();
+                        DoCardReward(RewardProfiles.BossCard);
                         DoGoldReward(1.5);
-                        DoRelicReward(combat);
+                        DoRelicReward(combat, RewardProfiles.BossRelic);
                         Player.BetweenFloorsReset();
                     }
-                    else
+                    else  
                     {
                         Console.WriteLine("You Lost!");
                         return;
@@ -58,7 +57,7 @@ public sealed class RunController
                     RunCombatLoop(combat,enemies);
                     if (combat.PlayerWon)
                     {
-                        DoCardReward();
+                        DoCardReward(RewardProfiles.NormalCard);
                         DoGoldReward(1);
                         Player.BetweenFloorsReset();
                     }
@@ -80,8 +79,8 @@ public sealed class RunController
                     RunCombatLoop(combat,enemies);
                     if (combat.PlayerWon)
                     {
-                        DoCardReward();
-                        DoRelicReward(combat);
+                        DoCardReward(RewardProfiles.EliteCard);
+                        DoRelicReward(combat, RewardProfiles.EliteRelic);
                         DoGoldReward(1.3);
                         Player.BetweenFloorsReset();
                     }
@@ -116,8 +115,8 @@ public sealed class RunController
 
     private void CreateShop()
     {
-        var cardOffers = _cardLibrary.CreateRewardOptions(3, _seed);
-        var relicOffers = _relicLibrary.CreateRewardOptions(3, _seed, Player);
+        var cardOffers = _cardLibrary.CreateRewardOptions(3, _seed, RewardProfiles.NormalCard);
+        var relicOffers = _relicLibrary.CreateRewardOptions(3, _seed, Player, RewardProfiles.NormalRelic);
         while (true)
         {
             Console.WriteLine("Welcome to the shop! ");
@@ -391,9 +390,9 @@ public sealed class RunController
         Console.WriteLine("Enter card index to play or 'end':");
     }
 
-    private void DoRelicReward(CombatController combat)
+    private void DoRelicReward(CombatController combat, RewardProfile rewardProfile)
     {
-        List<Relic> rewards = _relicLibrary.CreateRewardOptions(3,_seed,Player);
+        List<Relic> rewards = _relicLibrary.CreateRewardOptions(3,_seed,Player, rewardProfile);
         Console.WriteLine("Choose a relic reward (0-2) or type 'skip': ");
         for(int i = 0;i < rewards.Count; i++)
         {
@@ -413,9 +412,9 @@ public sealed class RunController
             Console.WriteLine("Invalid choice. Enter 0-2 or 'skip'.");
         }
     }
-    private void DoCardReward()
+    private void DoCardReward(RewardProfile rewardProfile)
     {
-        List<Card> rewards = _cardLibrary.CreateRewardOptions(3,_seed);
+        List<Card> rewards = _cardLibrary.CreateRewardOptions(3,_seed, rewardProfile);
 
         Console.WriteLine("Choose a card reward (0-2) or type 'skip': ");
         for(int i = 0;i < rewards.Count; i++)

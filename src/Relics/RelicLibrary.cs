@@ -15,29 +15,31 @@ public class RelicLibrary
     public Relic Create(string id) => new DataRelic(_defsById[id]);
 
     //Later add rarities and weights and such
-    public List<Relic> CreateRewardOptions(int count, Random rng, Character owner)
+    public List<Relic> CreateRewardOptions(int count, Random rng, Character owner, RewardProfile rewardProfile)
     {
         var owned = owner.Relics.Select(r => r.ID).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var available = _defs.Where(d => !owned.Contains(d.ID)).ToList();
 
-        if(available.Count == 0)
-            //Later can offer gold or cards or a different reward 
-            return new List<Relic>();
-        
-        if(count > available.Count)
-        {
-            count = available.Count;
-        }
-        HashSet<int> chosenIndices = new HashSet<int>();
-        List<Relic> rewardOptions = new List<Relic>();
+        List<Relic> rewardOptions = new();
+        HashSet<string> chosenIds = new(StringComparer.OrdinalIgnoreCase);
+
+        count = Math.Min(count, available.Count);
+
         while(rewardOptions.Count < count)
         {
-            int index = rng.Next(available.Count);
-            if(!chosenIndices.Contains(index))
+            RelicRarity rarity = RewardProfiles.RollRelic(rewardProfile, rng);
+            var pool = available.Where(d => d.Rarity == rarity && !chosenIds.Contains(d.ID)).ToList();
+            if(pool.Count == 0)
             {
-                chosenIndices.Add(index);
-                rewardOptions.Add(new DataRelic(available[index]));
+                pool = available.Where(d => !chosenIds.Contains(d.ID)).ToList();
             }
+            if(pool.Count == 0)
+                break;
+            
+            var chosenDef = pool[rng.Next(pool.Count)];
+            
+            rewardOptions.Add(new DataRelic(chosenDef));
+            chosenIds.Add(chosenDef.ID);
         }
         return rewardOptions;
     }
