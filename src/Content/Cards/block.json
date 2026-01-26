@@ -1,11 +1,20 @@
 {
     "id": "block",
     "name": "Block",
+    "description": "Gain 3 Block.",
     "cost": 1,
     "rarity": "Common",
     "type": "Skill",
     "targetType": "Self",
     "ops": [
       { "op": "Block", "amount": 3 }
-    ]
+    ],
+    "upgraded": {
+      "name": "Block+",
+      "description": "Gain 6 Block.",
+      "cost": 1,
+      "ops": [
+        { "op": "Block", "amount": 6}
+      ]
+    }
 }

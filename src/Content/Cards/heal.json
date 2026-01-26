@@ -1,11 +1,20 @@
 {
     "id": "heal",
     "name": "Heal",
+    "description": "Heal Yourself For 3 Health",
     "cost": 1,
-    "rarity": "Common",
+    "rarity": "Uncommon",
     "type": "Skill",
     "targetType": "Self",
     "ops": [
       { "op": "Heal", "amount": 3 }
-    ]
+    ],
+    "upgraded": {
+      "name": "Heal+",
+      "description": "Heal Yourself For 5 Health",
+      "cost": 1,
+      "ops": [
+        { "op": "Heal", "amount": 5}
+      ]
+    }
   }

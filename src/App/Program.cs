@@ -24,7 +24,6 @@ class Program
             player.Deck.Add(cardLibrary.Create("strike"));
             player.Deck.Add(cardLibrary.Create("block"));
         }
-        player.Deck.Add(cardLibrary.Create("cleave"));
         player.ShuffleDeck();
 
         var run = new RunController(player,cardLibrary,relicLibrary,rng,maxFloors: 10);

@@ -37,6 +37,7 @@ public sealed class RunController
                 case RoomType.Boss:
                     var boss = CreateBoss(Floor);
                     CombatController combat = new CombatController(Player, boss, _cardLibrary);
+                    Console.WriteLine("Starting boss!");
                     RunCombatLoop(combat, boss);
                     if (combat.PlayerWon)
                     {
@@ -54,6 +55,7 @@ public sealed class RunController
                 case RoomType.Combat:
                     var enemies = CreateCombat(Floor);
                     combat = new CombatController(Player, enemies, _cardLibrary);
+                    Console.WriteLine("Starting normal combat!");
                     RunCombatLoop(combat,enemies);
                     if (combat.PlayerWon)
                     {
@@ -76,6 +78,7 @@ public sealed class RunController
                 case RoomType.Elite:
                     enemies = CreateElite(Floor);
                     combat = new CombatController(Player, enemies, _cardLibrary);
+                    Console.WriteLine("Starting elite combat!");
                     RunCombatLoop(combat,enemies);
                     if (combat.PlayerWon)
                     {
@@ -235,21 +238,23 @@ public sealed class RunController
 
         while (true)
         {
+            Console.WriteLine("Welcome to a rest location!");
             Console.WriteLine($"Would you like to heal 30% ({healAmount}) of your hp ({Player.HP}/{Player.MaxHP}) or remove a card");
-            Console.WriteLine("Write 'heal' for healing or 'remove' for removing a card");
+            Console.WriteLine("Write 'heal' for healing or 'upgrade' for upgrading a card or write 'leave' to leave");
             string? choice = Console.ReadLine();
             if(choice?.ToLower() == "heal")
             {
                 Player.HealRaw(healAmount);
+                return;
             }
-            if(choice?.ToLower() == "remove")
+            else if(choice?.ToLower() == "upgrade")
             {
                 while (true)
                 {
-                    Console.WriteLine("Choose a card to remove (index) or type 'back' to go back:");
+                    Console.WriteLine("Choose a card to upgrade (index) or type 'back' to go back:");
                     for(int i = 0;i < Player.Deck.Count;i++)
                     {
-                        Console.WriteLine($"{i}: {Player.Deck[i].Name}");
+                        Console.WriteLine($"{i}: {Player.Deck[i].Name} (Amount: {Player.Deck[i]})");
                     }
                     string? input = Console.ReadLine().ToLower();
                     if(input == "back")
@@ -258,15 +263,23 @@ public sealed class RunController
                     }
                     if(int.TryParse(input, out int cardChoice) && cardChoice >= 0 && cardChoice < Player.Deck.Count)
                     {
-                        Card removedCard = Player.Deck[cardChoice];
-                        Player.Deck.Remove(removedCard);
-                        Console.WriteLine($"Removed: {removedCard}");
+                        Card card = Player.Deck[cardChoice];
+                        if(card is DataCard dataCard)
+                        {
+                            dataCard.Upgrade();
+                        }
+                        Console.WriteLine($"Upgraded: {card.Name}");
+                        return;
                     }
                     else
                     {
                         Console.WriteLine("Invalid input.");
                     }
                 }
+            }
+            else if(choice?.ToLower() == "leave")
+            {
+                return;
             }
             else
             {

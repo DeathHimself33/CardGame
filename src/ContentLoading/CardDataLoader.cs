@@ -22,6 +22,8 @@ public static partial class GameDataLoader
                 {
                     throw new Exception($"Card missing id: {path}");
                 }
+                ValidateBase(def,path);
+                ResolveUpgrade(def);
                 if(!dict.TryAdd(def.ID, def))
                 {
                     throw new Exception($"Duplicate card id: {def.ID} (file: {path})");
@@ -33,5 +35,36 @@ public static partial class GameDataLoader
             }
         }
         return dict;
+    }
+
+    private static void ResolveUpgrade(CardDef baseDef)
+    {
+        if(baseDef.Upgraded == null)
+            return;
+
+        var up = baseDef.Upgraded;
+
+        up.ID = baseDef.ID;
+        up.TargetType = baseDef.TargetType;
+        up.Rarity = baseDef.Rarity;
+        up.Type = baseDef.Type;
+
+        // Defaults
+        up.Name = string.IsNullOrWhiteSpace(up.Name)
+            ? baseDef.Name + "+"
+            : up.Name;
+
+        up.Description ??= baseDef.Description;
+        up.Cost = up.Cost == 0 ? baseDef.Cost : up.Cost;
+
+        if (up.Ops == null || up.Ops.Count == 0)
+            throw new Exception($"Upgraded card '{baseDef.ID}' has no ops");
+    }
+
+    // VALIDATION (Everyone loves a bit of validation fr fr)
+    private static void ValidateBase(CardDef def, string path)
+    {
+        if(def.Ops == null || def.Ops.Count == 0)
+            throw new Exception($"Card '{def.ID}' has no ops (path: {path})");
     }
 }
