@@ -2,12 +2,22 @@ namespace CardGame
 {
 
 
-    public readonly record struct UpgradedStats(
-            bool isUpgraded,
-            int upgradedDamage,
-            int upgradedCost,
-            string upgradedDescription
-        );
+    public readonly struct UpgradedStats
+{
+    public bool IsUpgraded { get; }
+    public int UpgradedDamage { get; }
+    public int UpgradedCost { get; }
+    public string UpgradedDescription { get; }
+
+    public UpgradedStats(bool isUpgraded, int upgradedDamage, int upgradedCost, string upgradedDescription)
+    {
+        IsUpgraded = isUpgraded;
+        UpgradedDamage = upgradedDamage;
+        UpgradedCost = upgradedCost;
+        UpgradedDescription = upgradedDescription;
+    }
+}
+
     public sealed class CardDef
     {
         public string ID { get; set; } = "";
