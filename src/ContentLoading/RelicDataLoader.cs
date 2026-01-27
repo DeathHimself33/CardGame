@@ -1,37 +1,39 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace CardGame;
-public static partial class GameDataLoader
+namespace CardGame
 {
-    public static IReadOnlyDictionary<string,RelicDef> LoadRelics(string relicsFolder)
+    public static partial class GameDataLoader
     {
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true};
-        options.Converters.Add(new JsonStringEnumConverter());
-
-        var dict = new Dictionary<string, RelicDef>(StringComparer.OrdinalIgnoreCase);
-
-        foreach(var path in Directory.EnumerateFileSystemEntries(relicsFolder, "*.json", SearchOption.AllDirectories))
+        public static IReadOnlyDictionary<string, RelicDef> LoadRelics(string relicsFolder)
         {
-            try
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            options.Converters.Add(new JsonStringEnumConverter());
+
+            var dict = new Dictionary<string, RelicDef>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var path in Directory.EnumerateFileSystemEntries(relicsFolder, "*.json", SearchOption.AllDirectories))
             {
-                var json = File.ReadAllText(path);
-                var def = JsonSerializer.Deserialize<RelicDef>(json,options)
-                    ?? throw new Exception($"Failed to load {path}");
-                if(string.IsNullOrWhiteSpace(def.ID))
+                try
                 {
-                    throw new Exception($"Relic missing id: {path}");
+                    var json = File.ReadAllText(path);
+                    var def = JsonSerializer.Deserialize<RelicDef>(json, options)
+                        ?? throw new Exception($"Failed to load {path}");
+                    if (string.IsNullOrWhiteSpace(def.ID))
+                    {
+                        throw new Exception($"Relic missing id: {path}");
+                    }
+                    if (!dict.TryAdd(def.ID, def))
+                    {
+                        throw new Exception($"Duplicate relic id: {def.ID} (file: {path})");
+                    }
                 }
-                if(!dict.TryAdd(def.ID, def))
+                catch (Exception ex)
                 {
-                    throw new Exception($"Duplicate relic id: {def.ID} (file: {path})");
+                    throw new Exception($"Failed parsing relic file: {path}", ex);
                 }
             }
-            catch(Exception ex)
-            {
-                throw new Exception($"Failed parsing relic file: {path}", ex);
-            }
+            return dict;
         }
-        return dict;
     }
 }

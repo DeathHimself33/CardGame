@@ -1,20 +1,22 @@
-namespace CardGame;
-public enum TriggerEvent
+namespace CardGame
 {
-    TurnStart, 
-    TurnEnd,
-    CombatStart,
-    CombatEnd,
-    CardPlayed,
-    DamageTaken,
-    BlockGained,
-    RelicPickup,
-    Healed
-}
-public enum RelicRarity
-{
-    Common,
-    Uncommon,
-    Rare,
-    Legendary
+    public enum TriggerEvent
+    {
+        TurnStart,
+        TurnEnd,
+        CombatStart,
+        CombatEnd,
+        CardPlayed,
+        DamageTaken,
+        BlockGained,
+        RelicPickup,
+        Healed
+    }
+    public enum RelicRarity
+    {
+        Common,
+        Uncommon,
+        Rare,
+        Legendary
+    }
 }

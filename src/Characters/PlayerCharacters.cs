@@ -1,13 +1,14 @@
-namespace CardGame;
-public class Player : Character
+namespace CardGame
 {
-    public int Gold{ get; set;}
-    //Player-specific logic here :)
-    public Player(int maxHP)
+    public class Player : Character
     {
-        MaxHP = maxHP;
-        HP = maxHP;
+        public int Gold { get; set; }
+        //Player-specific logic here :)
+        public Player(int maxHP)
+        {
+            MaxHP = maxHP;
+            HP = maxHP;
+        }
     }
 }
-    
-    
+

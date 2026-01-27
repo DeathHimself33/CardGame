@@ -1,39 +1,41 @@
 #nullable enable
-namespace CardGame;
-public enum CardRarity
+namespace CardGame
 {
-    Common,
-    Uncommon,
-    Rare,
-    Epic,
-    Legendary
-}
-public enum CardType
-{
-    Attack,
-    Skill,
-    Power
-}
-public enum TargetType
-{
-    None,
-    Self,
-    SingleEnemy,
-    AllEnemies
-}
-public abstract class Card
-{
-    public string ID {get; set;} = "";
-    public string Name { get; set; } = "";
-    public string Description {get; set;} = "";
-    public int Cost { get; set; }
-    public TargetType TargetType { get; set; }
-    public CardRarity Rarity { get; set; }
-    public CardType Type { get; set; }
-
-    public void PlayCard(CombatContext context, Character user, IReadOnlyList<Character> targets)
+    public enum CardRarity
     {
-        OnPlay(context, user, targets);
+        Common,
+        Uncommon,
+        Rare,
+        Epic,
+        Legendary
     }
-    protected abstract void OnPlay(CombatContext context, Character user, IReadOnlyList<Character> targets);
+    public enum CardType
+    {
+        Attack,
+        Skill,
+        Power
+    }
+    public enum TargetType
+    {
+        None,
+        Self,
+        SingleEnemy,
+        AllEnemies
+    }
+    public abstract class Card
+    {
+        public string ID { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public int Cost { get; set; }
+        public TargetType TargetType { get; set; }
+        public CardRarity Rarity { get; set; }
+        public CardType Type { get; set; }
+
+        public void PlayCard(CombatContext context, Character user, IReadOnlyList<Character> targets)
+        {
+            OnPlay(context, user, targets);
+        }
+        protected abstract void OnPlay(CombatContext context, Character user, IReadOnlyList<Character> targets);
+    }
 }

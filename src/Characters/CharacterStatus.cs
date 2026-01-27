@@ -1,51 +1,53 @@
-namespace CardGame;
-public abstract partial class Character
+namespace CardGame
 {
-    public void TriggerStatusEffects(CombatContext context, StatusEffectTrigger trigger)
+    public abstract partial class Character
     {
-        foreach(var effect in StatusEffects)
+        public void TriggerStatusEffects(CombatContext context, StatusEffectTrigger trigger)
         {
-            effect.OnTrigger(context, trigger, this);
-        }
-    }
-    public void AddStatusEffect(StatusEffect effect)
-    {
-        if (IsImmuneTo(effect.Type))
-        {
-            return;
-        }
-        StatusEffects.Add(effect);
-    }
-    public void RefreshStatusEffects(CombatContext context)
-    {
-        foreach(var effect in StatusEffects)
-        {
-            effect.TickDuration();
-        }
-        StatusEffects.RemoveAll(e => e.IsExpired());
-    }
-    public bool IsImmuneTo(StatusEffectType type)
-    {
-        foreach(var relic in Relics)
-        {
-            if (relic.Immunities.Contains(type))
+            foreach (var effect in StatusEffects)
             {
-                return true;
+                effect.OnTrigger(context, trigger, this);
             }
         }
-        return false;
-    }
-    public void ApplyPoison(int amount, int duration)
-    {
-        var poison = StatusEffects.OfType<Poison>().FirstOrDefault();
-        if(poison != null)
+        public void AddStatusEffect(StatusEffect effect)
         {
-            poison.AddAmount(amount);
-            poison.RefreshDuration(duration);
+            if (IsImmuneTo(effect.Type))
+            {
+                return;
+            }
+            StatusEffects.Add(effect);
         }
-        else
+        public void RefreshStatusEffects(CombatContext context)
         {
-            StatusEffects.Add(new Poison(amount,duration));
+            foreach (var effect in StatusEffects)
+            {
+                effect.TickDuration();
+            }
+            StatusEffects.RemoveAll(e => e.IsExpired());
+        }
+        public bool IsImmuneTo(StatusEffectType type)
+        {
+            foreach (var relic in Relics)
+            {
+                if (relic.Immunities.Contains(type))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public void ApplyPoison(int amount, int duration)
+        {
+            var poison = StatusEffects.OfType<Poison>().FirstOrDefault();
+            if (poison != null)
+            {
+                poison.AddAmount(amount);
+                poison.RefreshDuration(duration);
+            }
+            else
+            {
+                StatusEffects.Add(new Poison(amount, duration));
+            }
         }
     }
 }
