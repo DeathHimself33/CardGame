@@ -1,8 +1,13 @@
 
+using System.Runtime.CompilerServices;
+
 namespace CardGame
 {
     public sealed class RunController
     {
+        private List<Enemy> _currentEnemies = new List<Enemy>();
+        private CombatController _currentCombat;
+
         private readonly CardLibrary _cardLibrary;
         private readonly RelicLibrary _relicLibrary;
         private readonly Random _seed;
@@ -39,7 +44,7 @@ namespace CardGame
                         var boss = CreateBoss(Floor);
                         CombatController combat = new CombatController(Player, boss, _cardLibrary);
                         Console.WriteLine("Starting boss!");
-                        RunCombatLoop(combat, boss);
+                        StartCombat(combat, boss);
                         if (combat.PlayerWon)
                         {
                             DoCardReward(RewardProfiles.BossCard);
@@ -57,7 +62,7 @@ namespace CardGame
                         var enemies = CreateCombat(Floor);
                         combat = new CombatController(Player, enemies, _cardLibrary);
                         Console.WriteLine("Starting normal combat!");
-                        RunCombatLoop(combat, enemies);
+                        StartCombat(combat, enemies);
                         if (combat.PlayerWon)
                         {
                             DoCardReward(RewardProfiles.NormalCard);
@@ -80,7 +85,7 @@ namespace CardGame
                         enemies = CreateElite(Floor);
                         combat = new CombatController(Player, enemies, _cardLibrary);
                         Console.WriteLine("Starting elite combat!");
-                        RunCombatLoop(combat, enemies);
+                        StartCombat(combat, enemies);
                         if (combat.PlayerWon)
                         {
                             DoCardReward(RewardProfiles.EliteCard);
@@ -316,7 +321,54 @@ namespace CardGame
             boss.Add(new Enemy(50 + (floor - 1) * 5));
             return boss;
         }
-        private void RunCombatLoop(CombatController combat, List<Enemy> enemies)
+
+        private void StartCombat(List<Enemy> enemies)
+        {
+            _currentEnemies = enemies;
+            _currentCombat = new CombatController(Player, enemies, _cardLibrary);
+
+            // Advance till player's turn
+            while(_currentCombat.CurrentState != CombatController.State.PlayerWaitingAction
+                && _currentCombat.CurrentState != CombatController.State.CombatEnd)
+            {
+                _currentCombat.AdvanceState();
+            }
+        }
+
+        public CombatSnapshot GetCombatSnapshot()
+        {
+            var enemyViews = new List<EnemyView>();
+            for(int i = 0;i < _currentEnemies.Count; i++)
+            {
+                var e = _currentEnemies[i];
+                if(e.HP <= 0)
+                    continue;
+                var intent = e.plannedAction != null
+                    ? $"{e.plannedAction.Intent} {e.plannedAction.Amount}"
+                    : "";
+                enemyViews.Add(new EnemyView(i, "Enemy", e.HP, e.Block, intent));
+            }
+
+            var handViews = new List<CardView>();
+            for(int i = 0;i < Player.Hand.Count; i++)
+            {
+                var c = Player.Hand[i];
+                handViews.Add(new CardView(i, c.Name, c.Cost, c.TargetType));
+            }
+
+            return new CombatSnapshot(
+                Floor,
+                MaxFloors,
+                Player.HP,
+                Player.MaxHP,
+                Player.Block,
+                Player.Energy,
+                Player.Gold,
+                enemyViews,
+                handViews
+            );
+        }
+        private void StartCombat(CombatController combat, List<Enemy> enemies)
         {
             while (combat.CurrentState != CombatController.State.CombatEnd)
             {
