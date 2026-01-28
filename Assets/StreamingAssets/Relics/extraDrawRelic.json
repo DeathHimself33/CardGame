@@ -1,0 +1,9 @@
+{
+    "ID": "scroll_of_wisdom",
+    "Name": "Scroll Of Wisdom",
+    "Rarity": "Uncommon",
+    "Immunities": [],
+    "Triggers": {
+      "TurnStart": [ { "Op": "Draw", "Amount": 1 } ]
+    }
+}

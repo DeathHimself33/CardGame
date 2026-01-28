@@ -1,0 +1,20 @@
+{
+    "ID": "cleave",
+    "Name": "Cleave",
+    "Description": "Hit All Enemies For 4 Damage Each.",
+    "Cost": 1,
+    "RarityRaw": "Uncommon",
+    "TypeRaw": "Attack",
+    "TargetTypeRaw": "AllEnemies",
+    "Ops": [
+      { "Op": "Damage", "Amount": 4 }
+    ],
+    "Upgraded": {
+      "Name": "Cleave+",
+      "Description": "Hit All Enemies For 6 Damage Each.",
+      "Cost": 1,
+      "Ops": [
+        { "Op": "Damage", "Amount": 6}
+      ]
+    }
+  }

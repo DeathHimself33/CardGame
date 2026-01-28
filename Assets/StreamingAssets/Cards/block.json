@@ -1,0 +1,20 @@
+{
+  "ID": "block",
+  "Name": "Block",
+  "Description": "Gain 3 Block.",
+  "Cost": 1,
+  "RarityRaw": "Common",
+  "TypeRaw": "Skill",
+  "TargetTypeRaw": "Self",
+  "Ops": [
+    { "Op": "Block", "Amount": 3 }
+  ],
+  "Upgraded": {
+    "Name": "Block+",
+    "Description": "Gain 6 Block.",
+    "Cost": 1,
+    "Ops": [
+      { "Op": "Block", "Amount": 6 }
+    ]
+  }
+}

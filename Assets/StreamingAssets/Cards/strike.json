@@ -1,0 +1,20 @@
+{
+    "ID": "strike",
+    "Name": "Strike",
+    "Description": "Hit One Enemy For 4 Damage.",
+    "Cost": 1,
+    "RarityRaw": "Common",
+    "TypeRaw": "Attack",
+    "TargetTypeRaw": "SingleEnemy",
+    "Ops": [
+      { "Op": "Damage", "Amount": 4 }
+    ],
+    "Upgraded": {
+      "Name": "Strike+",
+      "Description": "Hit All Enemies For 7 Damage Each.",
+      "Cost": 1,
+      "Ops": [
+        { "Op": "Damage", "Amount": 7}
+      ]
+    }
+}

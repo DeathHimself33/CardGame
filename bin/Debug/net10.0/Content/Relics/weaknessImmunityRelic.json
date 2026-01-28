@@ -1,9 +1,0 @@
-{
-    "id": "amulet_of_fortitude",
-    "name": "Amulet Of Fortitude",
-    "rarity": "Rare",
-    "immunities": [
-        "Weak"
-    ],
-    "triggers": { }
-}

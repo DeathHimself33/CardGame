@@ -1,0 +1,9 @@
+{
+    "ID": "healing_stone",
+    "Name": "Healing Stone",
+    "Rarity": "Common",
+    "Immunities": [],
+    "Triggers": {
+      "CombatEnd": [ { "Op": "Heal", "Amount": 2 } ]
+    }
+}

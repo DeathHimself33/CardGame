@@ -1,0 +1,9 @@
+{
+    "ID": "shielding_amulet",
+    "Name": "Shielding Amulet",
+    "Rarity": "Common",
+    "Immunities": [],
+    "Triggers": {
+      "TurnStart": [ { "Op": "GainBlockRaw", "Amount": 1 } ]
+    }
+}

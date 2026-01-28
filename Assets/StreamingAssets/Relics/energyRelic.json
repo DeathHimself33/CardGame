@@ -1,0 +1,9 @@
+{
+    "ID": "battery",
+    "Name": "Battery",
+    "Rarity": "Rare",
+    "Immunities": [],
+    "Triggers": {
+      "TurnStart": [ { "Op": "GainEnergy", "Amount": 1 } ]
+    }
+}
