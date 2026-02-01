@@ -1,8 +1,5 @@
 using UnityEngine;
 using TMPro;
-using CardGame;
-using UnityEditor.Rendering.LookDev;
-
 public class CardButton : MonoBehaviour
 {
     public TMP_Text nameText;
@@ -21,6 +18,7 @@ public class CardButton : MonoBehaviour
 
     public void OnClick()
     {
+        Debug.Log($"CardButton.OnClick handIndex={handIndex} name={nameText.text}");
         combatView.OnCardClicked(handIndex);
     }
 }

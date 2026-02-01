@@ -3,9 +3,9 @@
     "Name": "Cleave",
     "Description": "Hit All Enemies For 4 Damage Each.",
     "Cost": 1,
-    "RarityRaw": "Uncommon",
-    "TypeRaw": "Attack",
-    "TargetTypeRaw": "AllEnemies",
+    "Rarity": "Uncommon",
+    "Type": "Attack",
+    "TargetType": "AllEnemies",
     "Ops": [
       { "Op": "Damage", "Amount": 4 }
     ],

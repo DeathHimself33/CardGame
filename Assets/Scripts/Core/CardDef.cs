@@ -1,6 +1,6 @@
+#nullable disable
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 namespace CardGame
 {
     public readonly struct UpgradedStats
@@ -20,32 +20,14 @@ namespace CardGame
     [Serializable]
     public sealed class CardDef
     {
-        public string ID;
-        public string Name;
-        public int Cost;
-        public string Description;
-
-        public string TargetTypeRaw;
-        public string RarityRaw;
-        public string TypeRaw;
-
-        [NonSerialized] public TargetType TargetType;
-        [NonSerialized] public CardRarity Rarity;
-        [NonSerialized] public CardType Type;
-
-        public List<EffectOpDef> Ops;
-        public CardDef Upgraded;
-
-        public void PostProcess()
-        {
-            if (!Enum.TryParse(TargetTypeRaw, true, out TargetType))
-                TargetType = TargetType.None;
-
-            if (!Enum.TryParse(RarityRaw, true, out Rarity))
-                Rarity = CardRarity.Common;
-
-            if (!Enum.TryParse(TypeRaw, true, out Type))
-                Type = CardType.Attack;
-        }
+        public string ID { get; set; }
+        public string Name { get; set; }
+        public int Cost { get; set; }
+        public string Description { get; set; }
+        public TargetType TargetType { get; set; }
+        public CardRarity Rarity { get; set; }
+        public CardType Type { get; set; }
+        public List<EffectOpDef> Ops { get; set; } = new();
+        public CardDef? Upgraded { get; set; }
     }
 }

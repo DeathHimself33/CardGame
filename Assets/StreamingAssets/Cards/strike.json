@@ -3,9 +3,9 @@
     "Name": "Strike",
     "Description": "Hit One Enemy For 4 Damage.",
     "Cost": 1,
-    "RarityRaw": "Common",
-    "TypeRaw": "Attack",
-    "TargetTypeRaw": "SingleEnemy",
+    "Rarity": "Common",
+    "Type": "Attack",
+    "TargetType": "SingleEnemy",
     "Ops": [
       { "Op": "Damage", "Amount": 4 }
     ],

@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 namespace CardGame
 {
     public abstract partial class Character
@@ -31,6 +32,7 @@ namespace CardGame
             HP -= amount;
             HP = Math.Max(0, HP);
             context.TriggerRelics(this, TriggerEvent.DamageTaken, context);
+            Debug.Log($"{this} took {amount}, HP now {HP}");
             context.NotifyCharacterDamaged(this);
         }
         public void GainBlock(CombatContext context, int amount)

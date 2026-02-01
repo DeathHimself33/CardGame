@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,17 +13,11 @@ namespace CardGame
         GainEnergy,
         Draw
     }
-    [Serializable]
     public sealed class EffectOpDef
     {
-        public string Op;
-        public int Amount;
-        public int Duration;
-
-        public EffectOpKind ParsedOP =>
-            Enum.TryParse<EffectOpKind>(Op, ignoreCase: true, out var result)
-                ? result
-                : throw new Exception("Op could not be parsed for card!"); 
+        public EffectOpKind Op { get; set; }
+        public int Amount { get; set; }
+        public int Duration { get; set; }
     }
     public static class EffectExecutor
     {
@@ -38,7 +31,7 @@ namespace CardGame
             foreach (var op in ops)
             {
                 Debug.Log($"Op={op.Op} Amount={op.Amount} Duration={op.Duration}");
-                switch (op.ParsedOP)
+                switch (op.Op)
                 {
                     case EffectOpKind.Damage:
                         foreach (var t in targets)

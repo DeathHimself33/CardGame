@@ -3,9 +3,9 @@
     "Name": "Heal",
     "Description": "Heal Yourself For 3 Health",
     "Cost": 1,
-    "RarityRaw": "Uncommon",
-    "TypeRaw": "Skill",
-    "TargetTypeRaw": "Self",
+    "Rarity": "Uncommon",
+    "Type": "Skill",
+    "TargetType": "Self",
     "Ops": [
       { "Op": "Heal", "Amount": 3 }
     ],

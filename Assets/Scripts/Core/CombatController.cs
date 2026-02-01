@@ -138,6 +138,8 @@ namespace CardGame
                         if (enemy.HP <= 0) continue;
                         if (Player is Player player)
                             enemy.ExecutePlannedAction(Context, player);
+                        if(CurrentState == State.CombatEnd)
+                            return;
                     }
                     TransitionToState(State.EnemyTurnEnd);
                     break;

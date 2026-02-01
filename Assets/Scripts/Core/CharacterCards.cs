@@ -125,7 +125,7 @@ namespace CardGame
             DiscardPile.AddRange(Hand);
             Hand.Clear();
 
-            Hand.AddRange(DiscardPile);
+            Deck.AddRange(DiscardPile);
             DiscardPile.Clear();
 
             ShuffleDeck();

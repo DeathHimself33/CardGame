@@ -71,32 +71,6 @@ namespace CardGame
         }
     }
 
-    public sealed class ShopSnapshot
-    {
-        public int PlayerGold { get; }
-        public List<CardView> CardOffers { get; }
-        public List<string> RelicOffers { get; }
-
-        public ShopSnapshot(
-            int playerGold,
-            List<CardView> cardOffers,
-            List<string> relicOffers)
-        {
-            PlayerGold = playerGold;
-            CardOffers = cardOffers;
-            RelicOffers = relicOffers;
-        }
-    }
-
-    public sealed class RestSnapshot
-    {
-        public int HealAmount { get; }
-        public List<CardView> Deck { get; }
-
-        public RestSnapshot(int healAmount, List<CardView> deck)
-        {
-            HealAmount = healAmount;
-            Deck = deck;
-        }
-    }
+    public sealed record ShopSnapshot(List<Card> CardOffers, List<Relic> RelicOffers);
+    public sealed record RestSnapshot(int HealAmount);
 }

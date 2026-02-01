@@ -1,6 +1,7 @@
-using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 
 namespace CardGame
@@ -9,6 +10,11 @@ namespace CardGame
     {
         public static IReadOnlyDictionary<string, CardDef> LoadCards(string cardsFolder)
         {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            options.Converters.Add(new JsonStringEnumConverter());
 
             var dict = new Dictionary<string, CardDef>(StringComparer.OrdinalIgnoreCase);
 
@@ -17,25 +23,24 @@ namespace CardGame
                 try
                 {
                     var json = File.ReadAllText(path);
-                    var def = JsonUtility.FromJson<CardDef>(json)
-                        ?? throw new Exception($"Failed to load {path}");
-                    def.PostProcess();
+                    var def = JsonSerializer.Deserialize<CardDef>(json, options)
+                              ?? throw new Exception($"Failed to load {path}");
+
                     if (string.IsNullOrWhiteSpace(def.ID))
-                    {
                         throw new Exception($"Card missing id: {path}");
-                    }
+
                     ValidateBase(def, path);
                     ResolveUpgrade(def);
+
                     if (!dict.TryAdd(def.ID, def))
-                    {
-                        throw new Exception($"Duplicate card id: {def.ID} (file: {path})");
-                    }
+                        throw new Exception($"Duplicate card id {def.ID} file {path}");
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Failed parsing card file: {path}", ex);
+                    throw new Exception($"Failed parsing card file {path}", ex);
                 }
             }
+
             return dict;
         }
 

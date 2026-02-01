@@ -3,9 +3,9 @@
   "Name": "Block",
   "Description": "Gain 3 Block.",
   "Cost": 1,
-  "RarityRaw": "Common",
-  "TypeRaw": "Skill",
-  "TargetTypeRaw": "Self",
+  "Rarity": "Common",
+  "Type": "Skill",
+  "TargetType": "Self",
   "Ops": [
     { "Op": "Block", "Amount": 3 }
   ],
